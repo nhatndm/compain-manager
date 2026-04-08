@@ -197,7 +197,7 @@ Knex is used as a query builder only — no ORM. Migrations live in `src/databas
 
 ```ts
 // apps/api/src/database/knex.config.ts
-import type { Knex } from 'knex'
+import { Knex } from 'knex'
 
 export const knexConfig: Knex.Config = {
   client: 'postgresql',

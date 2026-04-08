@@ -22,8 +22,10 @@ apps/api/src/
         ├── <feature>.module.ts
         ├── <feature>.controller.ts
         ├── <feature>.service.ts
-        └── dto/
-            └── create-<feature>.dto.ts   # Extends createZodDto() from nestjs-zod
+        ├── dto/
+        │   └── create-<feature>.dto.ts   # Extends createZodDto() from nestjs-zod
+        └── decorators/
+            └── <decorator>.decorator.ts  # Param decorators, method decorators
 ```
 
 ## Creating a New Module
@@ -78,7 +80,7 @@ Inject `KNEX_CONNECTION` for database access. Never instantiate services manuall
 ```ts
 // apps/api/src/modules/campaigns/campaigns.service.ts
 import { Injectable, Inject } from '@nestjs/common'
-import type { Knex } from 'knex'
+import { Knex } from 'knex'
 import { KNEX_CONNECTION } from '../../database/knex.module'
 
 @Injectable()
@@ -127,7 +129,7 @@ Migration files live in `apps/api/src/database/migrations/` and are named with a
 
 ```ts
 // 20260409_create_campaigns.ts
-import type { Knex } from 'knex'
+import { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('campaigns', (table) => {
@@ -153,3 +155,4 @@ pnpm --filter @repo/api db:migrate
 - **No import cycles** — modules import from `@repo/schemas`, not from each other's internals
 - **`KnexModule` is global** — no need to import it in feature modules, just inject `KNEX_CONNECTION`
 - **No `.js` extensions** in imports — the project uses `moduleResolution: Node16` with CommonJS
+- **All decorators go in `decorators/`** — every custom param decorator, method decorator, or composed decorator lives in the feature's `decorators/` folder, named `<name>.decorator.ts`. Example: `modules/auth/decorators/current-user.decorator.ts`

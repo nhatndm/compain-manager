@@ -1,0 +1,14 @@
+id: mono-repo-project
+status: in-progress
+created: 2026-04-08
+schema: spec-driven
+ 
+summary: >
+  Initialise a Turborepo monorepo with a NestJS + PostgreSQL backend,
+  a React + Vite frontend, and a shared @repo/schemas package for
+  Zod schemas and TypeScript types reused across both apps.
+ 
+specs:
+  - monorepo-scaffold
+  - shared-packages
+  - turborepo-config

@@ -1,0 +1,35 @@
+schema: spec-driven
+ 
+context: |
+  Project: Turbo Monorepo Full-Stack Application
+  Package manager: pnpm with workspaces
+  Monorepo tool: Turborepo
+ 
+  Apps:
+    - web: React 18 + TypeScript + Vite + TailwindCSS + Zod + ReactQuery + ReactRouter + Redux Toolkit
+    - api: NestJS + TypeScript + PostgreSQL + Knex + nestjs-zod
+ 
+  Packages:
+    - @repo/schemas: Shared Zod schemas and TypeScript types (reused by both web and api)
+    - @repo/tsconfig: Shared TypeScript configuration
+    - @repo/eslint-config: Shared ESLint rules
+    - @repo/prettier-config: Shared Prettier configuration
+ 
+  API conventions: RESTful, JSON responses, Zod-validated DTOs via nestjs-zod
+  Testing: Vitest for unit tests (web), Jest for unit tests (api), Playwright for e2e
+  Style: ESLint + Prettier, strict TypeScript across all packages
+ 
+rules:
+  proposal:
+    - Identify all affected apps and packages
+    - Note any breaking changes to shared schemas
+  specs:
+    - Use Given/When/Then format for scenarios
+    - Each requirement must reference the owning app or package
+  design:
+    - Include package dependency graph for cross-package changes
+    - Note Turbo pipeline task ordering implications
+  tasks:
+    - Group tasks by milestone (scaffold → configure → implement → test)
+    - Each task must be independently completable
+    - Mark shared package tasks before app-level tasks

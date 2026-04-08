@@ -3,15 +3,15 @@ import { PassportStrategy } from '@nestjs/passport'
 import { ExtractJwt, Strategy } from 'passport-jwt'
 import { Request } from 'express'
 import { AuthUser } from '@repo/schemas'
+import { AuthService } from './auth.service'
 
 type JwtPayload = {
   sub: string
-  email: string
 }
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor() {
+  constructor(private readonly authService: AuthService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request): string | null => req?.cookies?.['access_token'] as string ?? null,
@@ -21,8 +21,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     })
   }
 
-  validate(payload: JwtPayload): AuthUser {
-    if (!payload.sub || !payload.email) throw new UnauthorizedException()
-    return { id: payload.sub, email: payload.email, name: '' }
+  async validate(payload: JwtPayload): Promise<AuthUser> {
+    if (!payload.sub) throw new UnauthorizedException()
+    const user = await this.authService.findById(payload.sub)
+    if (!user) throw new UnauthorizedException()
+    return user
   }
 }

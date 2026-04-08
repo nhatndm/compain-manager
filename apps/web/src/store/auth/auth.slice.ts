@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { AuthUser } from '@repo/schemas'
+import { MeResponse } from '@repo/schemas'
 
 type AuthState = {
-  user: AuthUser | null
+  user: MeResponse | null
   loading: boolean
   error: string | null
 }
@@ -20,7 +20,7 @@ export const authSlice = createSlice({
     setLoading(state, action: PayloadAction<boolean>) {
       state.loading = action.payload
     },
-    setUser(state, action: PayloadAction<AuthUser | null>) {
+    setUser(state, action: PayloadAction<MeResponse | null>) {
       state.user = action.payload
       state.loading = false
       state.error = null

@@ -30,7 +30,12 @@ export const CreateCampaignSchema = CampaignSchema.omit({
 export const UpdateCampaignSchema = CreateCampaignSchema.omit({ createdBy: true }).partial()
 
 export const ScheduleCampaignSchema = z.object({
-  scheduledAt: z.string().datetime(),
+  scheduledAt: z
+    .string()
+    .datetime()
+    .refine((val) => new Date(val) > new Date(), {
+      message: 'scheduledAt must be a future date',
+    }),
 })
 
 export const CampaignStatsSchema = z.object({

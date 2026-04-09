@@ -180,6 +180,10 @@ export class CampaignsService {
 
   // ── Schedule ────────────────────────────────────────────────────────────
   async schedule(id: string, dto: ScheduleCampaignDto, userId: string): Promise<Campaign> {
+    if (new Date(dto.scheduledAt) <= new Date()) {
+      throw new BadRequestException(CAMPAIGN_ERRORS.SCHEDULE_IN_PAST)
+    }
+
     const campaign = await this.findOwnedCampaign(id, userId)
     const nextStatus = assertTransition(campaign.status, 'schedule')
 

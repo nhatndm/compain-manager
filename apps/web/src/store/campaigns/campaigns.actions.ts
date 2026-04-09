@@ -18,6 +18,7 @@ export const fetchCampaigns = (page = 1, limit = 20) => async (dispatch: AppDisp
     const data = await queryClient.fetchQuery({
       queryKey: ['campaigns', page, limit],
       queryFn: () => apiClient.get<PaginatedCampaigns>(`/campaigns?page=${page}&limit=${limit}`),
+      staleTime: 0,
     })
     dispatch(setCampaigns(data))
   } catch (err) {

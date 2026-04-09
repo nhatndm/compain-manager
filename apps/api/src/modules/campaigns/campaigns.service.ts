@@ -138,12 +138,9 @@ export class CampaignsService {
     })
   }
 
-  // ── Detail + stats ──────────────────────────────────────────────────────
-  async findOne(id: string, userId: string): Promise<Campaign & { stats: CampaignStats }> {
-    const campaign = await this.findOwnedCampaign(id, userId)
-
+  private async fetchStats(campaignId: string): Promise<CampaignStats> {
     const recipients = await this.knex<CampaignRecipientRow>('campaign_recipients')
-      .where('campaign_id', id)
+      .where('campaign_id', campaignId)
       .select('status', 'opened_at')
 
     const total = recipients.length
@@ -151,10 +148,20 @@ export class CampaignsService {
     const failed = recipients.filter(r => r.status === CampaignRecipientStatus.failed).length
     const pending = recipients.filter(r => r.status === CampaignRecipientStatus.pending).length
     const opened = recipients.filter(r => r.opened_at !== null).length
-    const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0
-    const failedRate = total > 0 ? Math.round((failed / total) * 100) : 0
+    return {
+      total,
+      sent,
+      failed,
+      pending,
+      openRate: sent > 0 ? Math.round((opened / sent) * 100) : 0,
+      failedRate: total > 0 ? Math.round((failed / total) * 100) : 0,
+    }
+  }
 
-    return { ...this.toCamel(campaign), stats: { total, sent, failed, pending, openRate, failedRate } }
+  // ── Detail + stats ──────────────────────────────────────────────────────
+  async findOne(id: string, userId: string): Promise<Campaign & { stats: CampaignStats }> {
+    const campaign = await this.findOwnedCampaign(id, userId)
+    return { ...this.toCamel(campaign), stats: await this.fetchStats(id) }
   }
 
   // ── Update (draft only) ─────────────────────────────────────────────────
@@ -241,19 +248,6 @@ export class CampaignsService {
   // ── Stats ───────────────────────────────────────────────────────────────
   async stats(id: string, userId: string): Promise<CampaignStats> {
     await this.findOwnedCampaign(id, userId)
-
-    const recipients = await this.knex<CampaignRecipientRow>('campaign_recipients')
-      .where('campaign_id', id)
-      .select('status', 'opened_at')
-
-    const total = recipients.length
-    const sent = recipients.filter(r => r.status === CampaignRecipientStatus.sent).length
-    const failed = recipients.filter(r => r.status === CampaignRecipientStatus.failed).length
-    const pending = recipients.filter(r => r.status === CampaignRecipientStatus.pending).length
-    const opened = recipients.filter(r => r.opened_at !== null).length
-    const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0
-    const failedRate = total > 0 ? Math.round((failed / total) * 100) : 0
-
-    return { total, sent, failed, pending, openRate, failedRate }
+    return this.fetchStats(id)
   }
 }

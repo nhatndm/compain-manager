@@ -74,9 +74,9 @@ export function CampaignDetailPage(): JSX.Element {
     dispatch(setMutationError(null))
   }
 
-  const isSent = data?.status === 'sent'
-  const isDraft = data?.status === 'draft'
-  const canDelete = data?.status === 'draft' || data?.status === 'scheduled'
+  const isSent = data?.status === CampaignStatus.sent
+  const isDraft = data?.status === CampaignStatus.draft
+  const canDelete = data?.status === CampaignStatus.draft || data?.status === CampaignStatus.scheduled
 
   return (
     <AppLayout>
@@ -139,7 +139,7 @@ export function CampaignDetailPage(): JSX.Element {
                     className="w-fit whitespace-nowrap px-4"
                     onClick={() => setScheduleOpen(true)}
                   >
-                    {data.status === 'scheduled' ? 'Reschedule' : 'Schedule'}
+                    {data.status === CampaignStatus.scheduled ? 'Reschedule' : 'Schedule'}
                   </Button>
                 )}
 

@@ -46,8 +46,7 @@ export class CampaignSchedulerService {
       .join('recipients', 'campaign_recipients.recipient_id', 'recipients.id')
       .where('campaign_recipients.campaign_id', campaignId)
       .where('campaign_recipients.status', CampaignRecipientStatus.pending)
-      .select<{ id: string; tracking_token: string; email: string }[]>(
-        'campaign_recipients.id',
+      .select<{ tracking_token: string; email: string }[]>(
         'campaign_recipients.tracking_token',
         'recipients.email',
       )

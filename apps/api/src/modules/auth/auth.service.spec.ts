@@ -15,6 +15,7 @@ describe('AuthService', () => {
     where: jest.Mock
     first: jest.Mock
     insert: jest.Mock
+    returning: jest.Mock
   }
   let mockKnex: jest.Mock
   const mockJwtService = { sign: jest.fn() }
@@ -23,7 +24,8 @@ describe('AuthService', () => {
     mockKnexChain = {
       where: jest.fn().mockReturnThis(),
       first: jest.fn(),
-      insert: jest.fn().mockResolvedValue([]),
+      insert: jest.fn().mockReturnThis(),
+      returning: jest.fn().mockResolvedValue([{ id: 'new-uuid', email: 'new@example.com', name: 'New User' }]),
     }
     mockKnex = jest.fn().mockReturnValue(mockKnexChain)
     mockJwtService.sign.mockReturnValue('test-jwt-token')
@@ -46,7 +48,7 @@ describe('AuthService', () => {
   // ── signup ────────────────────────────────────────────────────────────────
 
   describe('signup', () => {
-    it('returns true when a new user is created', async () => {
+    it('returns the created user (id, email, name) on success', async () => {
       mockKnexChain.first.mockResolvedValue(null)
 
       const result = await service.signup({
@@ -55,7 +57,7 @@ describe('AuthService', () => {
         password: 'password123',
       })
 
-      expect(result).toBe(true)
+      expect(result).toEqual({ id: 'new-uuid', email: 'new@example.com', name: 'New User' })
     })
 
     it('inserts the user with correct email and name', async () => {
@@ -67,6 +69,7 @@ describe('AuthService', () => {
       expect(mockKnexChain.insert).toHaveBeenCalledWith(
         expect.objectContaining({ email: 'new@example.com', name: 'New User' }),
       )
+      expect(mockKnexChain.returning).toHaveBeenCalledWith(['id', 'email', 'name'])
     })
 
     it('hashes the password with bcrypt (cost factor 10) before storing', async () => {

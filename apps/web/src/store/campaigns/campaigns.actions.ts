@@ -28,7 +28,7 @@ export const fetchCampaigns = (page = 1, limit = 20) => async (dispatch: AppDisp
 // ── Create ──────────────────────────────────────────────────────────────────
 
 export const createCampaign =
-  (dto: Pick<CreateCampaignDto, 'name' | 'subject' | 'body' | 'recipients'>) =>
+  (dto: CreateCampaignDto) =>
   async (dispatch: AppDispatch): Promise<Campaign> => {
     const campaign = await apiClient.post<Campaign>('/campaigns', dto)
     queryClient.removeQueries({ queryKey: ['campaigns'] })
@@ -55,7 +55,7 @@ export const fetchCampaignDetail = (id: string) => async (dispatch: AppDispatch)
 // ── Update ──────────────────────────────────────────────────────────────────
 
 export const updateCampaign =
-  (id: string, dto: Pick<UpdateCampaignDto, 'name' | 'subject' | 'body'>) =>
+  (id: string, dto: UpdateCampaignDto) =>
   async (dispatch: AppDispatch): Promise<boolean> => {
     dispatch(setMutationError(null))
     try {

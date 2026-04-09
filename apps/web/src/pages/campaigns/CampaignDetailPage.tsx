@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { CampaignStatus } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import {
   fetchCampaignDetail,
   sendCampaign,
+  deleteCampaign,
 } from '../../store/campaigns/campaigns.actions'
 import {
   selectCampaignDetail,
@@ -18,6 +19,8 @@ import { clearDetail, setMutationError } from '../../store/campaigns/campaigns.s
 import { AppLayout } from '../../components/AppLayout'
 import { Badge } from '../../components/Badge'
 import { Button } from '../../components/Button'
+import { DonutChart } from '../../components/DonutChart'
+import { StatCard } from '../../components/StatCard'
 import { Tooltip } from '../../components/Tooltip'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EditCampaignDialog } from '../../smart-components/campaigns/EditCampaignDialog'
@@ -26,6 +29,7 @@ import { ScheduleCampaignDialog } from '../../smart-components/campaigns/Schedul
 export function CampaignDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>()
   const dispatch = useDispatch<AppDispatch>()
+  const navigate = useNavigate()
 
   const data = useSelector(selectCampaignDetail)
   const isLoading = useSelector(selectCampaignDetailLoading)
@@ -35,7 +39,9 @@ export function CampaignDetailPage(): JSX.Element {
   const [editOpen, setEditOpen] = useState(false)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [sendConfirmOpen, setSendConfirmOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   useEffect(() => {
     if (id) dispatch(fetchCampaignDetail(id))
@@ -53,12 +59,24 @@ export function CampaignDetailPage(): JSX.Element {
     }
   }
 
+  const handleDeleteConfirm = async () => {
+    if (!id) return
+    setIsDeleting(true)
+    const ok = await dispatch(deleteCampaign(id))
+    setIsDeleting(false)
+    if (ok) {
+      toast.success('Campaign deleted')
+      navigate('/')
+    }
+  }
+
   const handleDialogClose = () => {
     dispatch(setMutationError(null))
   }
 
   const isSent = data?.status === 'sent'
   const isDraft = data?.status === 'draft'
+  const canDelete = data?.status === 'draft' || data?.status === 'scheduled'
 
   return (
     <AppLayout>
@@ -139,6 +157,22 @@ export function CampaignDetailPage(): JSX.Element {
                     Send Now
                   </Button>
                 )}
+
+                {canDelete ? (
+                  <Button
+                    variant="danger"
+                    className="w-fit whitespace-nowrap px-4"
+                    onClick={() => setDeleteConfirmOpen(true)}
+                  >
+                    Delete
+                  </Button>
+                ) : (
+                  <Tooltip text="Sent campaigns cannot be deleted">
+                    <Button variant="danger" className="w-fit whitespace-nowrap px-4" disabled>
+                      Delete
+                    </Button>
+                  </Tooltip>
+                )}
               </div>
             </div>
 
@@ -149,17 +183,24 @@ export function CampaignDetailPage(): JSX.Element {
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
               <StatCard label="Total Recipients" value={data.stats.total} />
               <StatCard label="Sent" value={data.stats.sent} />
               <StatCard label="Failed" value={data.stats.failed} />
               <StatCard label="Open Rate" value={`${data.stats.openRate.toFixed(1)}%`} />
+              <StatCard label="Failed Rate" value={`${data.stats.failedRate.toFixed(1)}%`} />
             </div>
 
             {/* Body */}
             <div className="flex flex-col gap-3 rounded-xl border border-gray-800 bg-gray-900 p-6">
               <h2 className="text-sm font-medium text-gray-400">Email Body</h2>
               <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-200">{data.body}</p>
+            </div>
+
+            {/* Charts */}
+            <div className="grid grid-cols-2 gap-4">
+              <DonutChart label="Open Rate" value={data.stats.openRate} color="#6366f1" />
+              <DonutChart label="Failed Rate" value={data.stats.failedRate} color="#ef4444" />
             </div>
 
             {/* Metadata */}
@@ -204,17 +245,18 @@ export function CampaignDetailPage(): JSX.Element {
             confirmLabel="Send Now"
             loading={isSending}
           />
+          <ConfirmDialog
+            open={deleteConfirmOpen}
+            onClose={() => { setDeleteConfirmOpen(false); handleDialogClose() }}
+            onConfirm={handleDeleteConfirm}
+            title="Delete Campaign"
+            message={`Are you sure you want to delete "${data.name}"? This action cannot be undone.`}
+            confirmLabel="Delete"
+            loading={isDeleting}
+          />
         </>
       )}
     </AppLayout>
   )
 }
 
-function StatCard({ label, value }: { label: string; value: string | number }): JSX.Element {
-  return (
-    <div className="flex flex-col gap-1 rounded-xl border border-gray-800 bg-gray-900 p-4">
-      <span className="text-xs text-gray-400">{label}</span>
-      <span className="text-2xl font-bold text-white">{value}</span>
-    </div>
-  )
-}

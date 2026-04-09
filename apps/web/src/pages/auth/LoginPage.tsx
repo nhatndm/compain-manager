@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { LoginSchema, LoginDto } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { login } from '../../store/auth/auth.actions'
+import { clearError } from '../../store/auth/auth.slice'
 import { selectAuthLoading, selectAuthError, selectIsAuthenticated } from '../../store/auth/auth.selectors'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -21,6 +22,10 @@ export function LoginPage(): JSX.Element {
   const { register, handleSubmit, formState: { errors } } = useForm<LoginDto>({
     resolver: zodResolver(LoginSchema),
   })
+
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   useEffect(() => {
     if (isAuthenticated) navigate('/', { replace: true })

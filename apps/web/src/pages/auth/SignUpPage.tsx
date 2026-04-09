@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
@@ -5,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { SignupSchema, SignupDto } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { signup } from '../../store/auth/auth.actions'
+import { clearError } from '../../store/auth/auth.slice'
 import { selectAuthLoading, selectAuthError } from '../../store/auth/auth.selectors'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
@@ -19,6 +21,10 @@ export function SignUpPage(): JSX.Element {
   const { register, handleSubmit, formState: { errors } } = useForm<SignupDto>({
     resolver: zodResolver(SignupSchema),
   })
+
+  useEffect(() => {
+    dispatch(clearError())
+  }, [dispatch])
 
   const onSubmit = async (data: SignupDto): Promise<void> => {
     const ok = await dispatch(signup(data))

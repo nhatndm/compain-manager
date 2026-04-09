@@ -3,7 +3,7 @@ import { Response } from 'express'
 import { AuthService } from './auth.service'
 import { SignupDto } from './dto/signup.dto'
 import { LoginDto } from './dto/login.dto'
-import { Auth } from './auth.guard'
+import { Auth } from './decorators/auth.decorator'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { AuthUser, MeResponse } from '@repo/schemas'
 
@@ -12,7 +12,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('signup')
-  signup(@Body() dto: SignupDto): Promise<boolean> {
+  signup(@Body() dto: SignupDto): Promise<MeResponse> {
     return this.authService.signup(dto)
   }
 

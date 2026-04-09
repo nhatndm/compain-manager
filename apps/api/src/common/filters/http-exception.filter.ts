@@ -32,6 +32,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
       message = 'Internal server error'
     }
 
+    if (status >= HttpStatus.INTERNAL_SERVER_ERROR) {
+      console.error(exception)
+    }
+
     const body = ApiErrorSchema.parse({
       statusCode: status,
       message,

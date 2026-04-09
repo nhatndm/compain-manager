@@ -2,6 +2,7 @@ import { forwardRef, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'sonner'
 import { Campaign } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { scheduleCampaign } from '../../store/campaigns/campaigns.actions'
@@ -54,7 +55,10 @@ export function ScheduleCampaignDialog({ open, onClose, onSuccess, campaign }: P
     setIsSubmitting(true)
     const ok = await dispatch(scheduleCampaign(campaign.id, selectedDate.toISOString()))
     setIsSubmitting(false)
-    if (ok) onSuccess()
+    if (ok) {
+      toast.success(isRescheduling ? 'Campaign rescheduled' : 'Campaign scheduled')
+      onSuccess()
+    }
   }
 
   const isRescheduling = campaign.status === 'scheduled'

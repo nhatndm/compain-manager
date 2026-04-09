@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useParams, Link } from 'react-router-dom'
+import { toast } from 'sonner'
 import { CampaignStatus } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import {
@@ -46,7 +47,10 @@ export function CampaignDetailPage(): JSX.Element {
     setIsSending(true)
     const ok = await dispatch(sendCampaign(id))
     setIsSending(false)
-    if (ok) setSendConfirmOpen(false)
+    if (ok) {
+      toast.success('Campaign sent successfully')
+      setSendConfirmOpen(false)
+    }
   }
 
   const handleDialogClose = () => {

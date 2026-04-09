@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useForm, useFieldArray } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDispatch } from 'react-redux'
+import { toast } from 'sonner'
 import { CreateCampaignDto, CreateCampaignSchema } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { createCampaign } from '../../store/campaigns/campaigns.actions'
@@ -59,6 +60,7 @@ export function CreateCampaignDialog({ open, onClose, onSuccess }: Props): JSX.E
     try {
       await dispatch(createCampaign(data))
       reset({ recipients: [{ name: '', email: '' }] })
+      toast.success('Campaign created successfully')
       onSuccess()
     } catch (err) {
       setApiError(err instanceof Error ? err.message : 'Failed to create campaign')

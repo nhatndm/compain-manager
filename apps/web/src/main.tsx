@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { RouterProvider } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { router } from './routes/index'
 import './index.css'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -23,6 +24,7 @@ createRoot(rootElement).render(
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
         <RouterProvider router={router} />
+        <Toaster theme="dark" position="bottom-right" richColors />
       </QueryClientProvider>
     </Provider>
   </StrictMode>,

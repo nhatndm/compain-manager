@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PaginatedResponseSchema } from './common'
 import { CreateRecipientSchema } from './recipient'
 
 export const CampaignStatusSchema = z.enum(['draft', 'scheduled', 'sent'])
@@ -46,6 +47,7 @@ export const CampaignStatsSchema = z.object({
   sent: z.number().int().nonnegative(),
   failed: z.number().int().nonnegative(),
   openRate: z.number().min(0).max(100),
+  failedRate: z.number().min(0).max(100),
 })
 
 export type CampaignStatusType = z.infer<typeof CampaignStatusSchema>
@@ -54,10 +56,5 @@ export type CreateCampaignDto = z.infer<typeof CreateCampaignSchema>
 export type UpdateCampaignDto = z.infer<typeof UpdateCampaignSchema>
 export type ScheduleCampaignDto = z.infer<typeof ScheduleCampaignSchema>
 export type CampaignStats = z.infer<typeof CampaignStatsSchema>
-export type PaginatedCampaigns = {
-  data: Campaign[]
-  total: number
-  page: number
-  limit: number
-  totalPages: number
-}
+export const PaginatedCampaignsSchema = PaginatedResponseSchema(CampaignSchema)
+export type PaginatedCampaigns = z.infer<typeof PaginatedCampaignsSchema>

@@ -133,12 +133,36 @@ compain-manager/
 
 ### Real prompts I used
 
-> use api-architecture skills, api-code-quality to build auth module
+- Use the api-architecture and api-code-quality skills to design and implement the authentication module.
 
-> for Compain detail page title, left side should be {data.name}{data.subject} and {data.status}, right side should be action group —
- Edit → Open Dialog with pre-filled information and can update, Edit only btn is disabled if status is not draft
- Schedule → open a dialog with a date-picker, btn is disabled if status is sent, and tootltip will be the compain has been sent
- Send now → open a confirmation dialog, btn is disabled if status is sent, and tootltip will be the compain has been sent
+- Use web-architecture, web-api-integration and web-redux-architecture skills to integrate authentication
+
+- 
+
+```
+For the Campaign Detail page header:
+
+Left side
+Display:
+	•	{data.name}
+	•	{data.subject}
+	•	{data.status}
+
+Right side
+Display an action group with these buttons:
+	1.	Edit
+	•	Opens a dialog with pre-filled campaign information
+	•	User can update the campaign details
+	•	This button is disabled when the campaign status is not draft
+	2.	Schedule
+	•	Opens a dialog containing a date picker
+	•	This button is disabled when the campaign status is sent
+	•	When disabled, show this tooltip: “This campaign has already been sent”
+	3.	Send now
+	•	Opens a confirmation dialog before sending
+	•	This button is disabled when the campaign status is sent
+	•	When disabled, show this tooltip: “This campaign has already been sent”
+```
 
 ### Where Claude Code was wrong or needed correction
 

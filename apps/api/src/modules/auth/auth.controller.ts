@@ -11,7 +11,7 @@ import { AuthUser, MeResponse } from '@repo/schemas'
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('signup')
+  @Post('register')
   signup(@Body() dto: SignupDto): Promise<MeResponse> {
     return this.authService.signup(dto)
   }

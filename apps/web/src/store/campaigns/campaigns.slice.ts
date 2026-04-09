@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import { Campaign, CampaignStats, PaginatedCampaigns } from '@repo/schemas'
+import { Campaign, CampaignRecipientItem, CampaignStats, PaginatedCampaigns } from '@repo/schemas'
 
 export type CampaignDetail = Campaign & { stats: CampaignStats }
 export type TrackingState = 'idle' | 'loading' | 'success' | 'error'
@@ -21,6 +21,14 @@ type CampaignsState = {
   mutationError: string | null
   // Open tracking
   trackingState: TrackingState
+  // Recipients
+  recipients: CampaignRecipientItem[]
+  recipientsTotal: number
+  recipientsPage: number
+  recipientsLimit: number
+  recipientsTotalPages: number
+  recipientsLoading: boolean
+  recipientsError: string | null
 }
 
 const initialState: CampaignsState = {
@@ -36,6 +44,13 @@ const initialState: CampaignsState = {
   detailError: null,
   mutationError: null,
   trackingState: 'idle',
+  recipients: [],
+  recipientsTotal: 0,
+  recipientsPage: 1,
+  recipientsLimit: 20,
+  recipientsTotalPages: 0,
+  recipientsLoading: false,
+  recipientsError: null,
 }
 
 export const campaignsSlice = createSlice({
@@ -84,6 +99,30 @@ export const campaignsSlice = createSlice({
     setTrackingState(state, action: PayloadAction<TrackingState>) {
       state.trackingState = action.payload
     },
+    // Recipients
+    setRecipientsLoading(state, action: PayloadAction<boolean>) {
+      state.recipientsLoading = action.payload
+    },
+    setRecipients(state, action: PayloadAction<{ data: CampaignRecipientItem[]; total: number; page: number; limit: number; totalPages: number }>) {
+      state.recipients = action.payload.data
+      state.recipientsTotal = action.payload.total
+      state.recipientsPage = action.payload.page
+      state.recipientsLimit = action.payload.limit
+      state.recipientsTotalPages = action.payload.totalPages
+      state.recipientsLoading = false
+      state.recipientsError = null
+    },
+    setRecipientsError(state, action: PayloadAction<string>) {
+      state.recipientsError = action.payload
+      state.recipientsLoading = false
+    },
+    clearRecipients(state) {
+      state.recipients = []
+      state.recipientsTotal = 0
+      state.recipientsPage = 1
+      state.recipientsTotalPages = 0
+      state.recipientsError = null
+    },
   },
 })
 
@@ -92,6 +131,7 @@ export const {
   setDetailLoading, setDetail, setDetailError, clearDetail,
   setMutationError,
   setTrackingState,
+  setRecipientsLoading, setRecipients, setRecipientsError, clearRecipients,
 } = campaignsSlice.actions
 
 export default campaignsSlice.reducer

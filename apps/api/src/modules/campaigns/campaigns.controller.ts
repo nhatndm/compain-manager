@@ -6,8 +6,8 @@ import { ScheduleCampaignDto } from './dto/schedule-campaign.dto'
 import { Auth } from '../auth/decorators/auth.decorator'
 import { Public } from '../auth/decorators/public.decorator'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
-import { AuthUser, Campaign, CampaignStats, PaginatedCampaigns, PaginationQuery, PaginationQuerySchema } from '@repo/schemas'
-import { ZodValidationPipe } from 'nestjs-zod'
+import { AuthUser, Campaign, CampaignStats, PaginatedCampaigns, PaginatedCampaignRecipients } from '@repo/schemas'
+import { PaginationQueryDto } from '../../common/dto/pagination-query.dto'
 
 @Controller('campaigns')
 @Auth()
@@ -17,7 +17,7 @@ export class CampaignsController {
   @Get()
   findAll(
     @CurrentUser() user: AuthUser,
-    @Query(new ZodValidationPipe(PaginationQuerySchema)) query: PaginationQuery,
+    @Query() query: PaginationQueryDto,
   ): Promise<PaginatedCampaigns> {
     return this.campaignsService.findAll(user.id, query)
   }
@@ -79,6 +79,15 @@ export class CampaignsController {
     @CurrentUser() user: AuthUser,
   ): Promise<Campaign> {
     return this.campaignsService.send(id, user.id)
+  }
+
+  @Get(':id/recipients')
+  findRecipients(
+    @Param('id') id: string,
+    @CurrentUser() user: AuthUser,
+    @Query() query: PaginationQueryDto,
+  ): Promise<PaginatedCampaignRecipients> {
+    return this.campaignsService.findRecipients(id, user.id, query)
   }
 
   @Get(':id/stats')

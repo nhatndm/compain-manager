@@ -206,7 +206,7 @@ export class CampaignsService {
 
     const rows = await this.knex<CampaignRow>('campaigns')
       .where('id', id)
-      .update({ status: nextStatus, updated_at: sentAt })
+      .update({ status: nextStatus, scheduled_at: sentAt, updated_at: sentAt })
       .returning('*')
 
     return this.toCamel(this.assertRow(rows[0]))

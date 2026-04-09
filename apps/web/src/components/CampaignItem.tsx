@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { Campaign, CampaignStatus } from '@repo/schemas'
 import { Badge } from './Badge'
 
@@ -22,6 +23,14 @@ export function CampaignItem({ campaign }: CampaignItemProps): JSX.Element {
       </td>
       <td className="px-4 py-3 text-gray-400">
         {new Date(campaign.createdAt).toLocaleDateString()}
+      </td>
+      <td className="px-4 py-3">
+        <Link
+          to={`/campaigns/${campaign.id}`}
+          className="text-sm font-medium text-indigo-400 transition-colors hover:text-indigo-300"
+        >
+          View
+        </Link>
       </td>
     </tr>
   )

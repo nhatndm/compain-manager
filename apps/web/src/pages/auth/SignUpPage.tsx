@@ -62,7 +62,7 @@ export function SignUpPage(): JSX.Element {
           </p>
         )}
 
-        <Button type="submit" loading={loading} className="mt-2">
+        <Button type="submit" loading={loading} className="mt-2 w-full">
           Create account
         </Button>
       </form>

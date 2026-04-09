@@ -2,6 +2,7 @@ import { createBrowserRouter } from 'react-router-dom'
 import { App } from '../app/App'
 import { LoginPage } from '../pages/auth/LoginPage'
 import { SignUpPage } from '../pages/auth/SignUpPage'
+import { CampaignDetailPage } from '../pages/campaigns/CampaignDetailPage'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 
 export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
@@ -11,6 +12,10 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
       {
         path: '/',
         element: <App />,
+      },
+      {
+        path: '/campaigns/:id',
+        element: <CampaignDetailPage />,
       },
     ],
   },

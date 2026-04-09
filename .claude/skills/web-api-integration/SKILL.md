@@ -43,9 +43,9 @@ Use `queryClient.fetchQuery` inside the thunk action:
 ```ts
 // store/campaigns/campaigns.actions.ts
 import { queryClient } from '../../lib/queryClient'
-import type { AppDispatch } from '../index'
+import { AppDispatch } from '../index'
 import { setLoading, setCampaigns, setError } from './campaigns.slice'
-import type { Campaign } from '@repo/schemas'
+import { Campaign } from '@repo/schemas'
 
 export const fetchCampaigns = (page = 1, limit = 20) => async (dispatch: AppDispatch) => {
   dispatch(setLoading(true))
@@ -71,7 +71,7 @@ Use `queryClient.getMutationCache` or simply `fetch` directly inside the thunk, 
 
 ```ts
 // store/campaigns/campaigns.actions.ts
-import type { CreateCampaignDto, Campaign } from '@repo/schemas'
+import { CreateCampaignDto, Campaign } from '@repo/schemas'
 import { addCampaign, setError } from './campaigns.slice'
 
 export const createCampaign = (dto: CreateCampaignDto) => async (dispatch: AppDispatch) => {
@@ -118,7 +118,7 @@ import { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { fetchCampaigns } from '../../store/campaigns'
 import { selectAllCampaigns, selectCampaignsLoading } from '../../store/campaigns'
-import type { AppDispatch } from '../../store'
+import { AppDispatch } from '../../store'
 
 export function CampaignTable() {
   const dispatch = useDispatch<AppDispatch>()

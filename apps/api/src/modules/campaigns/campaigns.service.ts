@@ -98,7 +98,7 @@ export class CampaignsService {
           subject: dto.subject,
           body: dto.body,
           status: CampaignStatus.draft,
-          scheduled_at: dto.scheduledAt ?? null,
+          scheduled_at: null,
           created_by: userId,
         })
         .returning('*')
@@ -163,7 +163,6 @@ export class CampaignsService {
         ...(dto.name && { name: dto.name }),
         ...(dto.subject && { subject: dto.subject }),
         ...(dto.body && { body: dto.body }),
-        ...(dto.scheduledAt !== undefined && { scheduled_at: dto.scheduledAt }),
         updated_at: new Date().toISOString(),
       })
       .returning('*')
@@ -216,20 +215,15 @@ export class CampaignsService {
   // ── Open tracking (public) ──────────────────────────────────────────────
   async markOpened(trackingToken: string): Promise<void> {
     const record = await this.knex('campaign_recipients')
-      .join('campaigns', 'campaign_recipients.campaign_id', 'campaigns.id')
-      .where('campaign_recipients.tracking_token', trackingToken)
-      .select<{ opened_at: string | null; scheduled_at: string | null; status: string }>(
-        'campaign_recipients.opened_at',
-        'campaigns.scheduled_at',
-        'campaigns.status',
-      )
+      .where({ tracking_token: trackingToken })
+      .select<{ opened_at: string | null; status: string }>('opened_at', 'status')
       .first()
 
     // Unknown token — silently ignore to avoid leaking information
     if (!record) return
 
     // Only allow tracking when campaign has been sent
-    if (record.status !== 'sent') {
+    if (record.status !== CampaignRecipientStatus.sent) {
       throw new BadRequestException(CAMPAIGN_ERRORS.LINK_EXPIRED)
     }
 

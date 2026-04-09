@@ -1,4 +1,4 @@
-import { ExecutionContext, Injectable, UseGuards, applyDecorators } from '@nestjs/common'
+import { ExecutionContext, Injectable } from '@nestjs/common'
 import { Observable } from 'rxjs'
 import { Reflector } from '@nestjs/core'
 import { AuthGuard } from '@nestjs/passport'
@@ -19,14 +19,3 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     return super.canActivate(context)
   }
 }
-
-/**
- * Apply to any controller or route handler that requires authentication.
- *
- * @example
- * @Get('me')
- * @Auth()
- * getMe(@CurrentUser() user: AuthUser) { ... }
- */
-export const Auth = (): MethodDecorator & ClassDecorator =>
-  applyDecorators(UseGuards(JwtAuthGuard))

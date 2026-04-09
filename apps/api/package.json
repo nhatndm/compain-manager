@@ -8,7 +8,7 @@
     "start": "node dist/main.js",
     "lint": "eslint src",
     "test": "jest",
-    "db:migrate": "tsx ./node_modules/.bin/knex --knexfile src/database/knex.config.ts migrate:latest"
+    "db:migrate": "node -r tsx/cjs ./node_modules/knex/bin/cli.js --knexfile src/database/knex.config.ts migrate:latest"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",

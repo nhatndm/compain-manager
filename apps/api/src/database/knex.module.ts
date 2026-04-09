@@ -1,6 +1,6 @@
 import { Module, Global } from '@nestjs/common'
 import knex, { type Knex } from 'knex'
-import { knexConfig } from './knex.config'
+import knexConfig from './knex.config'
 
 export const KNEX_CONNECTION = 'KNEX_CONNECTION'
 

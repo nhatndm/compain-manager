@@ -19,6 +19,6 @@ describe('App', () => {
       </MemoryRouter>,
     )
 
-    expect(screen.getByText('Compain Manager')).toBeDefined()
+    expect(screen.getByText('Campaign Manager')).toBeDefined()
   })
 })

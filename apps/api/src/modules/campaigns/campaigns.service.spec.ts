@@ -125,7 +125,7 @@ describe('CampaignsService', () => {
     })
   })
 
-  // ── markOpened (Open Compain) ─────────────────────────────────────────────
+  // ── markOpened (Open Campaign) ─────────────────────────────────────────────
 
   describe('markOpened', () => {
     it('silently ignores an unknown tracking token', async () => {

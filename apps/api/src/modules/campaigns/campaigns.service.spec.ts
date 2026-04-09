@@ -1,6 +1,7 @@
 import { Test } from '@nestjs/testing'
 import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common'
 import { CampaignsService } from './campaigns.service'
+import { CampaignSchedulerService } from './campaigns.scheduler'
 import { KNEX_CONNECTION } from '../../database/knex.module'
 import { CAMPAIGN_ERRORS } from './campaigns.errors'
 
@@ -54,6 +55,7 @@ describe('CampaignsService', () => {
       providers: [
         CampaignsService,
         { provide: KNEX_CONNECTION, useValue: mockKnex },
+        { provide: CampaignSchedulerService, useValue: { dispatchCampaign: jest.fn() } },
       ],
     }).compile()
 

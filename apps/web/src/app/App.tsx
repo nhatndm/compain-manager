@@ -1,10 +1,6 @@
-import { Provider } from 'react-redux'
-import { QueryClientProvider } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CreateUserSchema, type CreateUserDto } from '@repo/schemas'
-import { store } from '../store/index'
-import { queryClient } from '../lib/queryClient'
 
 function UserForm(): JSX.Element {
   const { register, handleSubmit, formState: { errors } } = useForm<CreateUserDto>({
@@ -54,10 +50,6 @@ function AppContent(): JSX.Element {
 
 export function App(): JSX.Element {
   return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AppContent />
-      </QueryClientProvider>
-    </Provider>
+    <AppContent />
   )
 }

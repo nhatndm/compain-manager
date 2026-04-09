@@ -15,6 +15,7 @@ import { CreateCampaignDto } from './dto/create-campaign.dto'
 import { UpdateCampaignDto } from './dto/update-campaign.dto'
 import { ScheduleCampaignDto } from './dto/schedule-campaign.dto'
 import { assertTransition } from './campaigns.transitions'
+import { CampaignSchedulerService } from './campaigns.scheduler'
 
 const uid = new ShortUniqueId({ length: 12 })
 
@@ -37,7 +38,10 @@ type CampaignRecipientRow = {
 
 @Injectable()
 export class CampaignsService {
-  constructor(@Inject(KNEX_CONNECTION) private readonly knex: Knex) {}
+  constructor(
+    @Inject(KNEX_CONNECTION) private readonly knex: Knex,
+    private readonly scheduler: CampaignSchedulerService,
+  ) {}
 
   // ── Shared ownership guard ──────────────────────────────────────────────
   // Fetches the campaign and verifies ownership in one step.
@@ -200,14 +204,12 @@ export class CampaignsService {
     const nextStatus = assertTransition(campaign.status, 'send')
     const sentAt = new Date().toISOString()
 
-    await this.knex('campaign_recipients')
-      .where('campaign_id', id)
-      .update({ status: CampaignRecipientStatus.sent, sent_at: sentAt })
-
     const rows = await this.knex<CampaignRow>('campaigns')
       .where('id', id)
       .update({ status: nextStatus, scheduled_at: sentAt, updated_at: sentAt })
       .returning('*')
+
+    await this.scheduler.dispatchCampaign(id, campaign.name)
 
     return this.toCamel(this.assertRow(rows[0]))
   }

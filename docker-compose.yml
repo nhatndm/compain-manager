@@ -22,7 +22,7 @@ services:
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://localhost:5432/compain_manager
+      DATABASE_URL: postgresql://postgres@postgres:5432/compain_manager
       JWT_SECRET: local-dev-secret-min-32-chars-change-in-prod
       JWT_EXPIRES_IN: 7d
       PORT: 3000

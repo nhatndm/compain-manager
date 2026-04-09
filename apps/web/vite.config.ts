@@ -7,6 +7,7 @@ const apiUrl = process.env['VITE_API_URL'] ?? 'http://localhost:3000'
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   server: {
+    host: true,
     proxy: {
       '/api': {
         target: apiUrl,

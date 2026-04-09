@@ -1,14 +1,22 @@
 import { z } from 'zod'
+import { PaginatedResponseSchema } from './common'
 
 export const CampaignRecipientStatusSchema = z.enum(['pending', 'sent', 'failed'])
 
 export const CampaignRecipientStatus = CampaignRecipientStatusSchema.enum
 
-export const CampaignRecipientSchema = z.object({
-  campaignId: z.string().uuid(),
-  recipientId: z.string().uuid(),
-  trackingToken: z.string(),
+
+
+export const CampaignRecipientItemSchema = z.object({
+  id: z.string().uuid(),
+  email: z.string().email(),
+  name: z.string(),
+  status: CampaignRecipientStatusSchema,
   sentAt: z.string().datetime().nullable(),
   openedAt: z.string().datetime().nullable(),
-  status: CampaignRecipientStatusSchema,
 })
+
+export const PaginatedCampaignRecipientsSchema = PaginatedResponseSchema(CampaignRecipientItemSchema)
+
+export type CampaignRecipientItem = z.infer<typeof CampaignRecipientItemSchema>
+export type PaginatedCampaignRecipients = z.infer<typeof PaginatedCampaignRecipientsSchema>

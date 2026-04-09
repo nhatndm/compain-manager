@@ -6,9 +6,10 @@ import {
   setDetailLoading, setDetail, setDetailError,
   setMutationError,
   setTrackingState,
+  setRecipientsLoading, setRecipients, setRecipientsError,
   CampaignDetail,
 } from './campaigns.slice'
-import { Campaign, CreateCampaignDto, PaginatedCampaigns, UpdateCampaignDto } from '@repo/schemas'
+import { Campaign, CreateCampaignDto, PaginatedCampaigns, PaginatedCampaignRecipients, UpdateCampaignDto } from '@repo/schemas'
 
 // ── List ────────────────────────────────────────────────────────────────────
 
@@ -116,6 +117,24 @@ export const deleteCampaign = (id: string) => async (dispatch: AppDispatch): Pro
     return false
   }
 }
+
+// ── Recipients ───────────────────────────────────────────────────────────────
+
+export const fetchCampaignRecipients =
+  (id: string, page = 1, limit = 20) =>
+  async (dispatch: AppDispatch): Promise<void> => {
+    dispatch(setRecipientsLoading(true))
+    try {
+      const data = await queryClient.fetchQuery({
+        queryKey: ['campaign-recipients', id, page, limit],
+        queryFn: () => apiClient.get<PaginatedCampaignRecipients>(`/campaigns/${id}/recipients?page=${page}&limit=${limit}`),
+        staleTime: 0,
+      })
+      dispatch(setRecipients(data))
+    } catch (err) {
+      dispatch(setRecipientsError(err instanceof Error ? err.message : 'Failed to load recipients'))
+    }
+  }
 
 // ── Open tracking (public) ───────────────────────────────────────────────────
 

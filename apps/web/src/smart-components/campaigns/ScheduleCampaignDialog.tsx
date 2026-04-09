@@ -1,8 +1,11 @@
 import { forwardRef, useEffect, useState } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
+import { useDispatch, useSelector } from 'react-redux'
 import { Campaign } from '@repo/schemas'
-import { apiClient } from '../../lib/api'
+import { AppDispatch } from '../../store'
+import { scheduleCampaign } from '../../store/campaigns/campaigns.actions'
+import { selectCampaignMutationError } from '../../store/campaigns/campaigns.selectors'
 import { Dialog } from '../../components/Dialog'
 import { Button } from '../../components/Button'
 
@@ -28,25 +31,19 @@ type Props = {
 }
 
 export function ScheduleCampaignDialog({ open, onClose, onSuccess, campaign }: Props): JSX.Element {
+  const dispatch = useDispatch<AppDispatch>()
+  const apiError = useSelector(selectCampaignMutationError)
+
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [dateError, setDateError] = useState<string | null>(null)
-  const [apiError, setApiError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   useEffect(() => {
     if (open) {
-      setApiError(null)
       setDateError(null)
       setSelectedDate(campaign.scheduledAt ? new Date(campaign.scheduledAt) : null)
     }
   }, [open, campaign.scheduledAt])
-
-  const handleClose = () => {
-    setSelectedDate(null)
-    setDateError(null)
-    setApiError(null)
-    onClose()
-  }
 
   const handleSubmit = async () => {
     if (!selectedDate) {
@@ -54,18 +51,10 @@ export function ScheduleCampaignDialog({ open, onClose, onSuccess, campaign }: P
       return
     }
     setDateError(null)
-    setApiError(null)
     setIsSubmitting(true)
-    try {
-      await apiClient.post(`/campaigns/${campaign.id}/schedule`, {
-        scheduledAt: selectedDate.toISOString(),
-      })
-      onSuccess()
-    } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to schedule campaign')
-    } finally {
-      setIsSubmitting(false)
-    }
+    const ok = await dispatch(scheduleCampaign(campaign.id, selectedDate.toISOString()))
+    setIsSubmitting(false)
+    if (ok) onSuccess()
   }
 
   const isRescheduling = campaign.status === 'scheduled'
@@ -73,7 +62,7 @@ export function ScheduleCampaignDialog({ open, onClose, onSuccess, campaign }: P
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       title={isRescheduling ? 'Reschedule Campaign' : 'Schedule Campaign'}
     >
       <div className="flex flex-col gap-4">
@@ -101,7 +90,7 @@ export function ScheduleCampaignDialog({ open, onClose, onSuccess, campaign }: P
         )}
 
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
+          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
             Cancel
           </Button>
           <Button loading={isSubmitting} onClick={handleSubmit} className="flex-1">

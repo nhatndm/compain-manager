@@ -3,6 +3,7 @@ import { App } from '../app/App'
 import { LoginPage } from '../pages/auth/LoginPage'
 import { SignUpPage } from '../pages/auth/SignUpPage'
 import { CampaignDetailPage } from '../pages/campaigns/CampaignDetailPage'
+import { TrackingPage } from '../pages/TrackingPage'
 import { ProtectedRoute } from '../components/ProtectedRoute'
 
 export const router: ReturnType<typeof createBrowserRouter> = createBrowserRouter([
@@ -26,5 +27,9 @@ export const router: ReturnType<typeof createBrowserRouter> = createBrowserRoute
   {
     path: '/signup',
     element: <SignUpPage />,
+  },
+  {
+    path: '/open/:tracking_token',
+    element: <TrackingPage />,
   },
 ])

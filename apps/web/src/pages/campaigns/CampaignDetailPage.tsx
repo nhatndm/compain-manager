@@ -1,50 +1,56 @@
-import { useState } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useParams, Link } from 'react-router-dom'
-import { Campaign, CampaignStats, CampaignStatus } from '@repo/schemas'
-import { apiClient } from '../../lib/api'
+import { CampaignStatus } from '@repo/schemas'
+import { AppDispatch } from '../../store'
+import {
+  fetchCampaignDetail,
+  sendCampaign,
+} from '../../store/campaigns/campaigns.actions'
+import {
+  selectCampaignDetail,
+  selectCampaignDetailLoading,
+  selectCampaignDetailError,
+  selectCampaignMutationError,
+} from '../../store/campaigns/campaigns.selectors'
+import { clearDetail, setMutationError } from '../../store/campaigns/campaigns.slice'
 import { AppLayout } from '../../components/AppLayout'
 import { Badge } from '../../components/Badge'
 import { Button } from '../../components/Button'
 import { Tooltip } from '../../components/Tooltip'
+import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EditCampaignDialog } from '../../smart-components/campaigns/EditCampaignDialog'
 import { ScheduleCampaignDialog } from '../../smart-components/campaigns/ScheduleCampaignDialog'
-import { ConfirmDialog } from '../../components/ConfirmDialog'
-
-type CampaignDetail = Campaign & { stats: CampaignStats }
 
 export function CampaignDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>()
-  const queryClient = useQueryClient()
+  const dispatch = useDispatch<AppDispatch>()
+
+  const data = useSelector(selectCampaignDetail)
+  const isLoading = useSelector(selectCampaignDetailLoading)
+  const error = useSelector(selectCampaignDetailError)
+  const mutationError = useSelector(selectCampaignMutationError)
 
   const [editOpen, setEditOpen] = useState(false)
   const [scheduleOpen, setScheduleOpen] = useState(false)
   const [sendConfirmOpen, setSendConfirmOpen] = useState(false)
   const [isSending, setIsSending] = useState(false)
-  const [sendError, setSendError] = useState<string | null>(null)
 
-  const { data, isLoading, error } = useQuery<CampaignDetail>({
-    queryKey: ['campaign', id],
-    queryFn: () => apiClient.get<CampaignDetail>(`/campaigns/${id}`),
-    enabled: !!id,
-  })
-
-  const refresh = () => {
-    queryClient.invalidateQueries({ queryKey: ['campaign', id] })
-  }
+  useEffect(() => {
+    if (id) dispatch(fetchCampaignDetail(id))
+    return () => { dispatch(clearDetail()) }
+  }, [id, dispatch])
 
   const handleSendConfirm = async () => {
-    setSendError(null)
+    if (!id) return
     setIsSending(true)
-    try {
-      await apiClient.post(`/campaigns/${id}/send`)
-      setSendConfirmOpen(false)
-      refresh()
-    } catch (err) {
-      setSendError(err instanceof Error ? err.message : 'Failed to send campaign')
-    } finally {
-      setIsSending(false)
-    }
+    const ok = await dispatch(sendCampaign(id))
+    setIsSending(false)
+    if (ok) setSendConfirmOpen(false)
+  }
+
+  const handleDialogClose = () => {
+    dispatch(setMutationError(null))
   }
 
   const isSent = data?.status === 'sent'
@@ -64,9 +70,7 @@ export function CampaignDetailPage(): JSX.Element {
         )}
 
         {error && (
-          <div className="rounded-lg bg-red-950 px-4 py-3 text-sm text-red-400">
-            {error instanceof Error ? error.message : 'Failed to load campaign'}
-          </div>
+          <div className="rounded-lg bg-red-950 px-4 py-3 text-sm text-red-400">{error}</div>
         )}
 
         {data && (
@@ -134,9 +138,9 @@ export function CampaignDetailPage(): JSX.Element {
               </div>
             </div>
 
-            {sendError && (
+            {mutationError && !sendConfirmOpen && (
               <div className="rounded-lg bg-red-950 px-4 py-3 text-sm text-red-400">
-                {sendError}
+                {mutationError}
               </div>
             )}
 
@@ -151,9 +155,7 @@ export function CampaignDetailPage(): JSX.Element {
             {/* Body */}
             <div className="flex flex-col gap-3 rounded-xl border border-gray-800 bg-gray-900 p-6">
               <h2 className="text-sm font-medium text-gray-400">Email Body</h2>
-              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-200">
-                {data.body}
-              </p>
+              <p className="whitespace-pre-wrap text-sm leading-relaxed text-gray-200">{data.body}</p>
             </div>
 
             {/* Metadata */}
@@ -166,9 +168,7 @@ export function CampaignDetailPage(): JSX.Element {
                 {data.scheduledAt && (
                   <div>
                     <dt className="text-gray-400">Scheduled At</dt>
-                    <dd className="mt-1 text-white">
-                      {new Date(data.scheduledAt).toLocaleString()}
-                    </dd>
+                    <dd className="mt-1 text-white">{new Date(data.scheduledAt).toLocaleString()}</dd>
                   </div>
                 )}
               </dl>
@@ -181,19 +181,19 @@ export function CampaignDetailPage(): JSX.Element {
         <>
           <EditCampaignDialog
             open={editOpen}
-            onClose={() => setEditOpen(false)}
-            onSuccess={() => { setEditOpen(false); refresh() }}
+            onClose={() => { setEditOpen(false); handleDialogClose() }}
+            onSuccess={() => setEditOpen(false)}
             campaign={data}
           />
           <ScheduleCampaignDialog
             open={scheduleOpen}
-            onClose={() => setScheduleOpen(false)}
-            onSuccess={() => { setScheduleOpen(false); refresh() }}
+            onClose={() => { setScheduleOpen(false); handleDialogClose() }}
+            onSuccess={() => setScheduleOpen(false)}
             campaign={data}
           />
           <ConfirmDialog
             open={sendConfirmOpen}
-            onClose={() => setSendConfirmOpen(false)}
+            onClose={() => { setSendConfirmOpen(false); handleDialogClose() }}
             onConfirm={handleSendConfirm}
             title="Send Campaign"
             message={`Are you sure you want to send "${data.name}" now? This action cannot be undone.`}

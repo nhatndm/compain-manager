@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CreateRecipientSchema } from './recipient'
 
 export const CampaignStatusSchema = z.enum(['draft', 'scheduled', 'sent'])
 
@@ -23,6 +24,7 @@ export const CreateCampaignSchema = CampaignSchema.omit({
 }).extend({
   status: CampaignStatusSchema.default('draft'),
   scheduledAt: z.string().datetime().nullable().optional(),
+  recipients: z.array(CreateRecipientSchema).min(1, 'At least one recipient is required'),
 })
 
 export const UpdateCampaignSchema = CreateCampaignSchema.omit({ createdBy: true }).partial()

@@ -4,6 +4,7 @@ import { CreateCampaignDto } from './dto/create-campaign.dto'
 import { UpdateCampaignDto } from './dto/update-campaign.dto'
 import { ScheduleCampaignDto } from './dto/schedule-campaign.dto'
 import { Auth } from '../auth/auth.guard'
+import { Public } from '../auth/decorators/public.decorator'
 import { CurrentUser } from '../auth/decorators/current-user.decorator'
 import { AuthUser, Campaign, CampaignStats, PaginatedCampaigns, PaginationQuery, PaginationQuerySchema } from '@repo/schemas'
 import { ZodValidationPipe } from 'nestjs-zod'
@@ -27,6 +28,13 @@ export class CampaignsController {
     @CurrentUser() user: AuthUser,
   ): Promise<Campaign> {
     return this.campaignsService.create(dto, user.id)
+  }
+
+  @Get('open/:tracking_token')
+  @Public()
+  @HttpCode(204)
+  markOpened(@Param('tracking_token') trackingToken: string): Promise<void> {
+    return this.campaignsService.markOpened(trackingToken)
   }
 
   @Get(':id')

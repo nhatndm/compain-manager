@@ -1,5 +1,5 @@
 {
-  "name": "compain-manager",
+  "name": "campaign-manager",
   "private": true,
   "scripts": {
     "dev": "turbo dev",

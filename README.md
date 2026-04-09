@@ -1,4 +1,4 @@
-# Compain Manager
+# Campaign Manager
 
 A full-stack monorepo built with Turborepo, featuring a NestJS API backend and a React + Vite frontend, sharing Zod schemas between them.
 
@@ -16,39 +16,24 @@ A full-stack monorepo built with Turborepo, featuring a NestJS API backend and a
 
 - **Node.js** ≥ 20 LTS
 - **pnpm** ≥ 9 (`npm install -g pnpm`)
+- **PostgreSQL** ≥ 17
 - **Docker** (for running the project locally)
 
-## Local Setup without Docker
+## Local Setup
+
+### With Docker
 
 ```bash
-# 1. Run the setup script (installs deps, builds schemas, runs migrations)
-./setup.sh
-
-# 2. Start Dev
-pnpm run dev
-
-```
-
-- API → [http://localhost:3000](http://localhost:3000)
-- Web → [http://localhost:5173](http://localhost:5173)
-
-## Local Setup with Docker
-
-```bash
-# 1. Start the full stack
 docker compose up
 ```
 
-- API → [http://localhost:3000](http://localhost:3000)
-- Web → [http://localhost:5173](http://localhost:5173)
-
-## Development (without Docker)
+### Without Docker
 
 ```bash
 # 1. Install dependencies
 pnpm install
 
-# 2. Copy env file and fill in your values
+# 2. Copy env files and fill in your values
 cp .env.example apps/api/.env
 cp .env.example apps/web/.env
 ```
@@ -56,7 +41,7 @@ cp .env.example apps/web/.env
 Edit `apps/api/.env`:
 
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/compain_manager
+DATABASE_URL=postgresql://postgres:password@localhost:5432/campaign_manager
 JWT_SECRET=your-secret-key
 PORT=3000
 ```
@@ -68,9 +53,15 @@ VITE_API_URL=http://localhost:3000
 ```
 
 ```bash
-# Start all apps in parallel (API on :3000, web on :5173)
+# 3. Run migrations and start
+pnpm --filter @repo/api db:migrate
 pnpm dev
 ```
+
+Once running:
+
+- API → [http://localhost:3000](http://localhost:3000)
+- Web → [http://localhost:5173](http://localhost:5173)
 
 ## Build
 
@@ -95,7 +86,7 @@ pnpm lint   # Lint all workspaces
 ## Project Structure
 
 ```
-compain-manager/
+campaign-manager/
 ├── apps/
 │   ├── api/          # NestJS backend (@repo/api)
 │   └── web/          # React + Vite frontend (@repo/web)
@@ -133,12 +124,36 @@ compain-manager/
 
 ### Real prompts I used
 
-> use api-architecture skills, api-code-quality to build auth module
+- Use the api-architecture and api-code-quality skills to design and implement the authentication module.
 
-> for Compain detail page title, left side should be {data.name}{data.subject} and {data.status}, right side should be action group —
- Edit → Open Dialog with pre-filled information and can update, Edit only btn is disabled if status is not draft
- Schedule → open a dialog with a date-picker, btn is disabled if status is sent, and tootltip will be the compain has been sent
- Send now → open a confirmation dialog, btn is disabled if status is sent, and tootltip will be the compain has been sent
+- Use web-architecture, web-api-integration and web-redux-architecture skills to integrate authentication
+
+- 
+
+```
+For the Campaign Detail page header:
+
+Left side
+Display:
+	•	{data.name}
+	•	{data.subject}
+	•	{data.status}
+
+Right side
+Display an action group with these buttons:
+	1.	Edit
+	•	Opens a dialog with pre-filled campaign information
+	•	User can update the campaign details
+	•	This button is disabled when the campaign status is not draft
+	2.	Schedule
+	•	Opens a dialog containing a date picker
+	•	This button is disabled when the campaign status is sent
+	•	When disabled, show this tooltip: “This campaign has already been sent”
+	3.	Send now
+	•	Opens a confirmation dialog before sending
+	•	This button is disabled when the campaign status is sent
+	•	When disabled, show this tooltip: “This campaign has already been sent”
+```
 
 ### Where Claude Code was wrong or needed correction
 

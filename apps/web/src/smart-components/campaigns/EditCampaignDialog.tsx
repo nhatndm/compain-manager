@@ -14,7 +14,7 @@ import { Button } from '../../components/Button'
 
 const FormSchema = CreateCampaignSchema.pick({ name: true, subject: true, body: true })
 
-type FormValues = Pick<CreateCampaignDto, 'name' | 'subject' | 'body'>
+type FormValues = CreateCampaignDto
 
 type Props = {
   open: boolean

@@ -17,17 +17,19 @@ export const CampaignSchema = z.object({
   updatedAt: z.string().datetime(),
 })
 
-export const CreateCampaignSchema = CampaignSchema.omit({
-  id: true,
-  createdAt: true,
-  updatedAt: true,
+export const CreateCampaignSchema = CampaignSchema.pick({
+  name: true,
+  subject: true,
+  body: true,
 }).extend({
-  status: CampaignStatusSchema.default('draft'),
-  scheduledAt: z.string().datetime().nullable().optional(),
   recipients: z.array(CreateRecipientSchema).min(1, 'At least one recipient is required'),
 })
 
-export const UpdateCampaignSchema = CreateCampaignSchema.omit({ createdBy: true }).partial()
+export const UpdateCampaignSchema = CampaignSchema.pick({
+  name: true,
+  subject: true,
+  body: true,
+}).partial()
 
 export const ScheduleCampaignSchema = z.object({
   scheduledAt: z

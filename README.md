@@ -1,4 +1,4 @@
-# Compain Manager
+# Campaign Manager
 
 A full-stack monorepo built with Turborepo, featuring a NestJS API backend and a React + Vite frontend, sharing Zod schemas between them.
 
@@ -16,39 +16,24 @@ A full-stack monorepo built with Turborepo, featuring a NestJS API backend and a
 
 - **Node.js** ≥ 20 LTS
 - **pnpm** ≥ 9 (`npm install -g pnpm`)
+- **PostgreSQL** ≥ 17
 - **Docker** (for running the project locally)
 
-## Local Setup without Docker
+## Local Setup
+
+### With Docker
 
 ```bash
-# 1. Run the setup script (installs deps, builds schemas, runs migrations)
-./setup.sh
-
-# 2. Start Dev
-pnpm run dev
-
-```
-
-- API → [http://localhost:3000](http://localhost:3000)
-- Web → [http://localhost:5173](http://localhost:5173)
-
-## Local Setup with Docker
-
-```bash
-# 1. Start the full stack
 docker compose up
 ```
 
-- API → [http://localhost:3000](http://localhost:3000)
-- Web → [http://localhost:5173](http://localhost:5173)
-
-## Development (without Docker)
+### Without Docker
 
 ```bash
 # 1. Install dependencies
 pnpm install
 
-# 2. Copy env file and fill in your values
+# 2. Copy env files and fill in your values
 cp .env.example apps/api/.env
 cp .env.example apps/web/.env
 ```
@@ -56,7 +41,7 @@ cp .env.example apps/web/.env
 Edit `apps/api/.env`:
 
 ```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/compain_manager
+DATABASE_URL=postgresql://postgres:password@localhost:5432/campaign_manager
 JWT_SECRET=your-secret-key
 PORT=3000
 ```
@@ -68,9 +53,15 @@ VITE_API_URL=http://localhost:3000
 ```
 
 ```bash
-# Start all apps in parallel (API on :3000, web on :5173)
+# 3. Run migrations and start
+pnpm --filter @repo/api db:migrate
 pnpm dev
 ```
+
+Once running:
+
+- API → [http://localhost:3000](http://localhost:3000)
+- Web → [http://localhost:5173](http://localhost:5173)
 
 ## Build
 
@@ -95,7 +86,7 @@ pnpm lint   # Lint all workspaces
 ## Project Structure
 
 ```
-compain-manager/
+campaign-manager/
 ├── apps/
 │   ├── api/          # NestJS backend (@repo/api)
 │   └── web/          # React + Vite frontend (@repo/web)

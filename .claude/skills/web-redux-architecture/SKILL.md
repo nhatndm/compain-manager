@@ -28,7 +28,7 @@ Define the state shape and synchronous reducers using Redux Toolkit's `createSli
 ```ts
 // store/campaigns/campaigns.slice.ts
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit'
-import type { Campaign } from '@repo/schemas'
+import { Campaign } from '@repo/schemas'
 
 type CampaignsState = {
   items: Campaign[]
@@ -76,7 +76,7 @@ All React Query calls happen here (see `web-api-integration` skill). Actions are
 
 ```ts
 // store/campaigns/campaigns.actions.ts
-import type { AppDispatch } from '../index'
+import { AppDispatch } from '../index'
 import { setLoading, setCampaigns, setError } from './campaigns.slice'
 
 export const fetchCampaigns = () => async (dispatch: AppDispatch) => {
@@ -96,7 +96,7 @@ All state access from components goes through selectors — never access `state.
 ```ts
 // store/campaigns/campaigns.selectors.ts
 import { createSelector } from '@reduxjs/toolkit'
-import type { RootState } from '../index'
+import { RootState } from '../index'
 
 export const selectCampaignsState = (state: RootState) => state.campaigns
 
@@ -156,7 +156,7 @@ export type AppDispatch = typeof store.dispatch
 import { useSelector, useDispatch } from 'react-redux'
 import { selectAllCampaigns, selectCampaignsLoading } from '../../store/campaigns'
 import { fetchCampaigns } from '../../store/campaigns'
-import type { AppDispatch } from '../../store'
+import { AppDispatch } from '../../store'
 
 export function CampaignTable() {
   const dispatch = useDispatch<AppDispatch>()

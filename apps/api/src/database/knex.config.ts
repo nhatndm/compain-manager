@@ -1,4 +1,4 @@
-import type { Knex } from 'knex'
+import { Knex } from 'knex'
 
 const knexConfig: Knex.Config = {
   client: 'postgresql',

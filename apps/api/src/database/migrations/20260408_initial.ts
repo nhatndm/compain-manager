@@ -1,4 +1,4 @@
-import type { Knex } from 'knex'
+import { Knex } from 'knex'
 
 export async function up(knex: Knex): Promise<void> {
   // users
@@ -6,6 +6,7 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary().defaultTo(knex.fn.uuid())
     table.string('email').notNullable().unique()
     table.string('name').notNullable()
+    table.string('password_hash').notNullable()
     table.timestamp('created_at').notNullable().defaultTo(knex.fn.now())
   })
 

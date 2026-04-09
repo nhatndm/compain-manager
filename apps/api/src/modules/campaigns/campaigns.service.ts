@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ForbiddenException,
   Inject,
   Injectable,
@@ -6,6 +7,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { Knex } from 'knex'
+import ShortUniqueId from 'short-unique-id'
 import { Campaign, CampaignStats, CampaignStatus, CampaignRecipientStatus, PaginationQuery, PaginatedCampaigns } from '@repo/schemas'
 import { KNEX_CONNECTION } from '../../database/knex.module'
 import { CAMPAIGN_ERRORS } from './campaigns.errors'
@@ -13,6 +15,8 @@ import { CreateCampaignDto } from './dto/create-campaign.dto'
 import { UpdateCampaignDto } from './dto/update-campaign.dto'
 import { ScheduleCampaignDto } from './dto/schedule-campaign.dto'
 import { assertTransition } from './campaigns.transitions'
+
+const uid = new ShortUniqueId({ length: 12 })
 
 type CampaignRow = {
   id: string
@@ -86,18 +90,48 @@ export class CampaignsService {
 
   // ── Create ──────────────────────────────────────────────────────────────
   async create(dto: CreateCampaignDto, userId: string): Promise<Campaign> {
-    const rows = await this.knex<CampaignRow>('campaigns')
-      .insert({
-        name: dto.name,
-        subject: dto.subject,
-        body: dto.body,
-        status: CampaignStatus.draft,
-        scheduled_at: dto.scheduledAt ?? null,
-        created_by: userId,
-      })
-      .returning('*')
+    return this.knex.transaction(async (trx) => {
+      // 1. Insert campaign
+      const rows = await trx<CampaignRow>('campaigns')
+        .insert({
+          name: dto.name,
+          subject: dto.subject,
+          body: dto.body,
+          status: CampaignStatus.draft,
+          scheduled_at: dto.scheduledAt ?? null,
+          created_by: userId,
+        })
+        .returning('*')
 
-    return this.toCamel(this.assertRow(rows[0]))
+      const campaign = this.toCamel(this.assertRow(rows[0]))
+
+      // 2. Upsert recipients and link them to the campaign
+      for (const input of dto.recipients) {
+        // Find existing recipient by email or create a new one
+        let recipient = await trx('recipients').where('email', input.email).first<{ id: string }>()
+        if (!recipient) {
+          const [inserted] = await trx('recipients')
+            .insert({ email: input.email, name: input.name })
+            .returning('id')
+          recipient = inserted as { id: string }
+        }
+
+        // Insert campaign_recipient — skip if the pair already exists
+        const alreadyLinked = await trx('campaign_recipients')
+          .where({ campaign_id: campaign.id, recipient_id: recipient.id })
+          .first()
+
+        if (!alreadyLinked) {
+          await trx('campaign_recipients').insert({
+            campaign_id: campaign.id,
+            recipient_id: recipient.id,
+            tracking_token: uid.rnd(),
+          })
+        }
+      }
+
+      return campaign
+    })
   }
 
   // ── Detail + stats ──────────────────────────────────────────────────────
@@ -173,6 +207,34 @@ export class CampaignsService {
       .returning('*')
 
     return this.toCamel(this.assertRow(rows[0]))
+  }
+
+  // ── Open tracking (public) ──────────────────────────────────────────────
+  async markOpened(trackingToken: string): Promise<void> {
+    const record = await this.knex('campaign_recipients')
+      .join('campaigns', 'campaign_recipients.campaign_id', 'campaigns.id')
+      .where('campaign_recipients.tracking_token', trackingToken)
+      .select<{ opened_at: string | null; scheduled_at: string | null; status: string }>(
+        'campaign_recipients.opened_at',
+        'campaigns.scheduled_at',
+        'campaigns.status',
+      )
+      .first()
+
+    // Unknown token — silently ignore to avoid leaking information
+    if (!record) return
+
+    // Only allow tracking when campaign has been sent
+    if (record.status !== 'sent') {
+      throw new BadRequestException(CAMPAIGN_ERRORS.LINK_EXPIRED)
+    }
+
+    // First open only — no-op if already recorded
+    if (!record.opened_at) {
+      await this.knex('campaign_recipients')
+        .where({ tracking_token: trackingToken })
+        .update({ opened_at: new Date().toISOString() })
+    }
   }
 
   // ── Stats ───────────────────────────────────────────────────────────────

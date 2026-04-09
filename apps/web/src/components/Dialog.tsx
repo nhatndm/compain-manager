@@ -25,8 +25,8 @@ export function Dialog({ open, onClose, title, children }: DialogProps): JSX.Ele
         className="absolute inset-0 bg-black/60"
         onClick={onClose}
       />
-      <div className="relative w-full max-w-lg rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
+      <div className="relative flex max-h-[90vh] w-full max-w-lg flex-col rounded-xl border border-gray-800 bg-gray-900 shadow-2xl">
+        <div className="flex shrink-0 items-center justify-between border-b border-gray-800 px-6 py-4">
           <h2 className="text-base font-semibold text-white">{title}</h2>
           <button
             onClick={onClose}
@@ -42,7 +42,7 @@ export function Dialog({ open, onClose, title, children }: DialogProps): JSX.Ele
             </svg>
           </button>
         </div>
-        <div className="px-6 py-5">{children}</div>
+        <div className="overflow-y-auto px-6 py-5">{children}</div>
       </div>
     </div>
   )

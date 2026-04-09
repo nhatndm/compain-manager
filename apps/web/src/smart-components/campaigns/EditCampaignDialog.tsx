@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { useDispatch, useSelector } from 'react-redux'
 import { Campaign, CreateCampaignSchema, CreateCampaignDto } from '@repo/schemas'
-import { apiClient } from '../../lib/api'
+import { AppDispatch } from '../../store'
+import { updateCampaign } from '../../store/campaigns/campaigns.actions'
+import { selectCampaignMutationError } from '../../store/campaigns/campaigns.selectors'
 import { Dialog } from '../../components/Dialog'
 import { Input } from '../../components/Input'
 import { Textarea } from '../../components/Textarea'
@@ -20,7 +23,8 @@ type Props = {
 }
 
 export function EditCampaignDialog({ open, onClose, onSuccess, campaign }: Props): JSX.Element {
-  const [apiError, setApiError] = useState<string | null>(null)
+  const dispatch = useDispatch<AppDispatch>()
+  const apiError = useSelector(selectCampaignMutationError)
 
   const {
     register,
@@ -29,33 +33,22 @@ export function EditCampaignDialog({ open, onClose, onSuccess, campaign }: Props
     reset,
   } = useForm<FormValues>({
     resolver: zodResolver(FormSchema),
+    mode: 'onTouched',
   })
 
   useEffect(() => {
     if (open) {
       reset({ name: campaign.name, subject: campaign.subject, body: campaign.body })
-      setApiError(null)
     }
   }, [open, campaign, reset])
 
-  const handleClose = () => {
-    reset()
-    setApiError(null)
-    onClose()
-  }
-
   const onSubmit = async (data: FormValues) => {
-    setApiError(null)
-    try {
-      await apiClient.patch(`/campaigns/${campaign.id}`, data)
-      onSuccess()
-    } catch (err) {
-      setApiError(err instanceof Error ? err.message : 'Failed to update campaign')
-    }
+    const ok = await dispatch(updateCampaign(campaign.id, data))
+    if (ok) onSuccess()
   }
 
   return (
-    <Dialog open={open} onClose={handleClose} title="Edit Campaign">
+    <Dialog open={open} onClose={onClose} title="Edit Campaign">
       <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
         <Input
           label="Campaign Name"
@@ -78,7 +71,7 @@ export function EditCampaignDialog({ open, onClose, onSuccess, campaign }: Props
         )}
 
         <div className="flex gap-3 pt-2">
-          <Button type="button" variant="secondary" onClick={handleClose} className="flex-1">
+          <Button type="button" variant="secondary" onClick={onClose} className="flex-1">
             Cancel
           </Button>
           <Button type="submit" loading={isSubmitting} className="flex-1">

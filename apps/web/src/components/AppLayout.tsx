@@ -20,7 +20,7 @@ export function AppLayout({ children }: AppLayoutProps): JSX.Element {
       {/* Topbar */}
       <header className="border-b border-gray-800 bg-gray-900">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-6">
-          <span className="text-lg font-bold text-white">Compain Manager</span>
+          <span className="text-lg font-bold text-white">Campaign Manager</span>
 
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-400">

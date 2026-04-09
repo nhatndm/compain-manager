@@ -10,7 +10,7 @@ export function AuthCard({ title, subtitle, children }: AuthCardProps): JSX.Elem
       <div className="w-full max-w-md">
         <div className="mb-8 text-center">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Compain Manager
+            Campaign Manager
           </h1>
         </div>
         <div className="rounded-2xl border border-gray-200 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-gray-900">

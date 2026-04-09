@@ -4,14 +4,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_DB: compain_manager
+      POSTGRES_DB: campaign_manager
       POSTGRES_HOST_AUTH_METHOD: trust
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d compain_manager"]
+      test: ["CMD-SHELL", "pg_isready -U postgres -d campaign_manager"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -22,7 +22,7 @@ services:
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://postgres@postgres:5432/compain_manager
+      DATABASE_URL: postgresql://postgres@postgres:5432/campaign_manager
       JWT_SECRET: local-dev-secret-min-32-chars-change-in-prod
       JWT_EXPIRES_IN: 7d
       PORT: 3000

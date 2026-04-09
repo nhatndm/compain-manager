@@ -15,6 +15,8 @@ export const signup = (dto: SignupDto) => async (dispatch: AppDispatch): Promise
   } catch (err) {
     dispatch(setError(err instanceof Error ? err.message : 'Signup failed'))
     return false
+  } finally {
+    dispatch(setLoading(false))
   }
 }
 
@@ -31,6 +33,8 @@ export const login = (dto: LoginDto) => async (dispatch: AppDispatch): Promise<b
   } catch (err) {
     dispatch(setError(err instanceof Error ? err.message : 'Login failed'))
     return false
+  } finally {
+    dispatch(setLoading(false))
   }
 }
 

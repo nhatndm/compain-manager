@@ -20,16 +20,17 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signup(dto: SignupDto): Promise<boolean> {
+  async signup(dto: SignupDto): Promise<MeResponse> {
     const existing = await this.knex<UserRow>('users').where('email', dto.email).first()
     if (existing) throw new ConflictException(AUTH_ERRORS.EMAIL_ALREADY_IN_USE)
 
     const passwordHash = await bcrypt.hash(dto.password, 10)
 
-     await this.knex<UserRow>('users')
+    const [user] = await this.knex<UserRow>('users')
       .insert({ email: dto.email, name: dto.name, password_hash: passwordHash })
+      .returning(['id', 'email', 'name']) as [UserRow]
 
-    return true
+    return { id: user.id, email: user.email, name: user.name }
   }
 
   async findById(id: string): Promise<AuthUser | null> {

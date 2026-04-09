@@ -16,9 +16,33 @@ A full-stack monorepo built with Turborepo, featuring a NestJS API backend and a
 
 - **Node.js** ≥ 20 LTS
 - **pnpm** ≥ 9 (`npm install -g pnpm`)
-- **PostgreSQL** ≥ 14 (for the API)
+- **Docker** (for running the project locally)
 
-## Setup
+## Local Setup without Docker
+
+```bash
+# 1. Run the setup script (installs deps, builds schemas, runs migrations)
+./setup.sh
+
+# 2. Start Dev
+pnpm run dev
+
+```
+
+- API → [http://localhost:3000](http://localhost:3000)
+- Web → [http://localhost:5173](http://localhost:5173)
+
+## Local Setup with Docker
+
+```bash
+# 1. Start the full stack
+docker compose up
+```
+
+- API → [http://localhost:3000](http://localhost:3000)
+- Web → [http://localhost:5173](http://localhost:5173)
+
+## Development (without Docker)
 
 ```bash
 # 1. Install dependencies
@@ -30,6 +54,7 @@ cp .env.example apps/web/.env
 ```
 
 Edit `apps/api/.env`:
+
 ```env
 DATABASE_URL=postgresql://postgres:password@localhost:5432/compain_manager
 JWT_SECRET=your-secret-key
@@ -37,19 +62,14 @@ PORT=3000
 ```
 
 Edit `apps/web/.env`:
+
 ```env
 VITE_API_URL=http://localhost:3000
 ```
 
-## Development
-
 ```bash
 # Start all apps in parallel (API on :3000, web on :5173)
 pnpm dev
-
-# Or run individually
-pnpm --filter @repo/api dev
-pnpm --filter @repo/web dev
 ```
 
 ## Build
@@ -57,19 +77,12 @@ pnpm --filter @repo/web dev
 ```bash
 # Build all packages and apps (respects dependency order)
 pnpm build
-
-# Turborepo caches build outputs — subsequent builds are instant on unchanged code
-pnpm build  # → FULL TURBO on second run
 ```
 
 ## Database Migrations
 
 ```bash
-# Run pending migrations
 pnpm --filter @repo/api db:migrate
-
-# Or via turbo
-pnpm turbo db:migrate
 ```
 
 ## Testing & Linting

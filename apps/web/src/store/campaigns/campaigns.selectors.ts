@@ -22,3 +22,17 @@ export const selectCampaignMutationError = createSelector(selectCampaignsState, 
 
 // Tracking
 export const selectTrackingState = createSelector(selectCampaignsState, (s) => s.trackingState)
+
+// Recipients
+export const selectCampaignRecipients = createSelector(selectCampaignsState, (s) => s.recipients)
+export const selectCampaignRecipientsLoading = createSelector(selectCampaignsState, (s) => s.recipientsLoading)
+export const selectCampaignRecipientsError = createSelector(selectCampaignsState, (s) => s.recipientsError)
+export const selectCampaignRecipientsPagination = createSelector(
+  selectCampaignsState,
+  ({ recipientsTotal, recipientsPage, recipientsLimit, recipientsTotalPages }) => ({
+    total: recipientsTotal,
+    page: recipientsPage,
+    limit: recipientsLimit,
+    totalPages: recipientsTotalPages,
+  }),
+)

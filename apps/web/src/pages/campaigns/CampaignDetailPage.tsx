@@ -25,6 +25,7 @@ import { Tooltip } from '../../components/Tooltip'
 import { ConfirmDialog } from '../../components/ConfirmDialog'
 import { EditCampaignDialog } from '../../smart-components/campaigns/EditCampaignDialog'
 import { ScheduleCampaignDialog } from '../../smart-components/campaigns/ScheduleCampaignDialog'
+import { CampaignRecipientsTable } from '../../smart-components/campaigns/CampaignRecipientsTable'
 
 export function CampaignDetailPage(): JSX.Element {
   const { id } = useParams<{ id: string }>()
@@ -218,6 +219,9 @@ export function CampaignDetailPage(): JSX.Element {
                 )}
               </dl>
             </div>
+
+            {/* Recipients */}
+            {id && <CampaignRecipientsTable campaignId={id} />}
           </>
         )}
       </div>

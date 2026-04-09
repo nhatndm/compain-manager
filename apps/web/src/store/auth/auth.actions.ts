@@ -8,8 +8,8 @@ export const signup = (dto: SignupDto) => async (dispatch: AppDispatch): Promise
   dispatch(setLoading(true))
   try {
     await queryClient.fetchQuery({
-      queryKey: ['auth', 'signup', dto.email],
-      queryFn: () => apiClient.post('/auth/signup', dto),
+      queryKey: ['auth', 'register', dto.email],
+      queryFn: () => apiClient.post('/auth/register', dto),
     })
     return true
   } catch (err) {

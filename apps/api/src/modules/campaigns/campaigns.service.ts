@@ -8,7 +8,7 @@ import {
 } from '@nestjs/common'
 import { Knex } from 'knex'
 import ShortUniqueId from 'short-unique-id'
-import { Campaign, CampaignStats, CampaignStatus, CampaignRecipientStatus, PaginationQuery, PaginatedCampaigns } from '@repo/schemas'
+import { Campaign, CampaignStats, CampaignStatus, CampaignRecipientStatus, PaginationQuery, PaginatedCampaigns, PaginatedCampaignRecipients } from '@repo/schemas'
 import { KNEX_CONNECTION } from '../../database/knex.module'
 import { CAMPAIGN_ERRORS } from './campaigns.errors'
 import { CreateCampaignDto } from './dto/create-campaign.dto'
@@ -242,6 +242,45 @@ export class CampaignsService {
       await this.knex('campaign_recipients')
         .where({ tracking_token: trackingToken })
         .update({ opened_at: new Date().toISOString() })
+    }
+  }
+
+  // ── Recipients ──────────────────────────────────────────────────────────
+  async findRecipients(id: string, userId: string, query: PaginationQuery): Promise<PaginatedCampaignRecipients> {
+    await this.findOwnedCampaign(id, userId)
+
+    const { page, limit } = query
+    const offset = (page - 1) * limit
+
+    const [rows, countResult] = await Promise.all([
+      this.knex('campaign_recipients as cr')
+        .join('recipients as r', 'r.id', 'cr.recipient_id')
+        .where('cr.campaign_id', id)
+        .select<{ id: string; email: string; name: string; status: string; sent_at: string | null; opened_at: string | null }[]>(
+          'r.id', 'r.email', 'r.name', 'cr.status', 'cr.sent_at', 'cr.opened_at',
+        )
+        .orderBy('r.email', 'asc')
+        .limit(limit)
+        .offset(offset),
+      this.knex('campaign_recipients')
+        .where('campaign_id', id)
+        .count<[{ count: string }]>('recipient_id as count'),
+    ])
+
+    const total = Number(countResult[0]?.count ?? 0)
+    return {
+      data: rows.map(r => ({
+        id: r.id,
+        email: r.email,
+        name: r.name,
+        status: r.status as PaginatedCampaignRecipients['data'][number]['status'],
+        sentAt: r.sent_at,
+        openedAt: r.opened_at,
+      })),
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     }
   }
 

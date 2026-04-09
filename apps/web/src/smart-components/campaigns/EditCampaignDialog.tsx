@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useDispatch, useSelector } from 'react-redux'
+import { toast } from 'sonner'
 import { Campaign, CreateCampaignSchema, CreateCampaignDto } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { updateCampaign } from '../../store/campaigns/campaigns.actions'
@@ -44,7 +45,10 @@ export function EditCampaignDialog({ open, onClose, onSuccess, campaign }: Props
 
   const onSubmit = async (data: FormValues) => {
     const ok = await dispatch(updateCampaign(campaign.id, data))
-    if (ok) onSuccess()
+    if (ok) {
+      toast.success('Campaign updated successfully')
+      onSuccess()
+    }
   }
 
   return (

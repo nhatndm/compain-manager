@@ -67,6 +67,7 @@ export function CampaignList(): JSX.Element {
               <th className="px-4 py-3 text-left font-medium text-gray-400">Status</th>
               <th className="px-4 py-3 text-left font-medium text-gray-400">Scheduled At</th>
               <th className="px-4 py-3 text-left font-medium text-gray-400">Created At</th>
+              <th className="px-4 py-3 text-left font-medium text-gray-400">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-800">

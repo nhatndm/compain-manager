@@ -13,7 +13,7 @@ export function Button({
   className = '',
   ...props
 }: ButtonProps): JSX.Element {
-  const base = 'w-full rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
+  const base = 'rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'
 
   const variants = {
     primary: 'bg-indigo-600 text-white hover:bg-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-400',

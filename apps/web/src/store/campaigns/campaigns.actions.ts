@@ -101,6 +101,21 @@ export const sendCampaign = (id: string) => async (dispatch: AppDispatch): Promi
   }
 }
 
+// ── Delete ───────────────────────────────────────────────────────────────────
+
+export const deleteCampaign = (id: string) => async (dispatch: AppDispatch): Promise<boolean> => {
+  dispatch(setMutationError(null))
+  try {
+    await apiClient.delete(`/campaigns/${id}`)
+    queryClient.removeQueries({ queryKey: ['campaign', id] })
+    queryClient.removeQueries({ queryKey: ['campaigns'] })
+    return true
+  } catch (err) {
+    dispatch(setMutationError(err instanceof Error ? err.message : 'Failed to delete campaign'))
+    return false
+  }
+}
+
 // ── Open tracking (public) ───────────────────────────────────────────────────
 
 export const trackOpen = (trackingToken: string) => async (dispatch: AppDispatch): Promise<void> => {

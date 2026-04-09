@@ -13,8 +13,6 @@ export const LoginSchema = z.object({
 
 export const AuthUserSchema = z.object({
   id: z.string().uuid(),
-  email: z.string().email(),
-  name: z.string().min(1),
 })
 
 export type SignupDto = z.infer<typeof SignupSchema>

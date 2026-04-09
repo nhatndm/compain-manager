@@ -1,4 +1,3 @@
-import { useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Link, useNavigate } from 'react-router-dom'
@@ -6,7 +5,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { SignupSchema, SignupDto } from '@repo/schemas'
 import { AppDispatch } from '../../store'
 import { signup } from '../../store/auth/auth.actions'
-import { selectAuthLoading, selectAuthError, selectIsAuthenticated } from '../../store/auth/auth.selectors'
+import { selectAuthLoading, selectAuthError } from '../../store/auth/auth.selectors'
 import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
 import { AuthCard } from '../../components/AuthCard'
@@ -16,18 +15,14 @@ export function SignUpPage(): JSX.Element {
   const navigate = useNavigate()
   const loading = useSelector(selectAuthLoading)
   const error = useSelector(selectAuthError)
-  const isAuthenticated = useSelector(selectIsAuthenticated)
 
   const { register, handleSubmit, formState: { errors } } = useForm<SignupDto>({
     resolver: zodResolver(SignupSchema),
   })
 
-  useEffect(() => {
-    if (isAuthenticated) navigate('/', { replace: true })
-  }, [isAuthenticated, navigate])
-
   const onSubmit = async (data: SignupDto): Promise<void> => {
-    await dispatch(signup(data))
+    const ok = await dispatch(signup(data))
+    if (ok) navigate('/login', { replace: true })
   }
 
   return (

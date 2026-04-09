@@ -4,14 +4,14 @@ import { CampaignStatus } from '@repo/schemas'
 type CampaignAction = 'update' | 'delete' | 'schedule' | 'send'
 
 type Transition =
-  | { type: 'to'; from: string; to: string }   // moves to a new status
-  | { type: 'guard'; from: string }             // validates current status, no status change
+  | { type: 'to'; from: string | string[]; to: string }   // moves to a new status
+  | { type: 'guard'; from: string | string[] }             // validates current status, no status change
 
 const TRANSITIONS: Record<CampaignAction, Transition> = {
   update:   { type: 'guard', from: CampaignStatus.draft },
-  delete:   { type: 'guard', from: CampaignStatus.draft },
-  schedule: { type: 'to',    from: CampaignStatus.draft,     to: CampaignStatus.scheduled },
-  send:     { type: 'to',    from: CampaignStatus.scheduled, to: CampaignStatus.sent },
+  delete:   { type: 'guard', from: [CampaignStatus.draft, CampaignStatus.scheduled] },
+  schedule: { type: 'to',    from: CampaignStatus.draft,                                    to: CampaignStatus.scheduled },
+  send:     { type: 'to',    from: [CampaignStatus.draft, CampaignStatus.scheduled],        to: CampaignStatus.sent },
 }
 
 /**
@@ -22,10 +22,11 @@ const TRANSITIONS: Record<CampaignAction, Transition> = {
  */
 export function assertTransition(currentStatus: string, action: CampaignAction): string {
   const transition = TRANSITIONS[action]
+  const allowed = Array.isArray(transition.from) ? transition.from : [transition.from]
 
-  if (currentStatus !== transition.from) {
+  if (!allowed.includes(currentStatus)) {
     throw new BadRequestException(
-      `Cannot '${action}' a campaign with status '${currentStatus}'. Expected '${transition.from}'.`,
+      `Cannot '${action}' a campaign with status '${currentStatus}'. Expected one of: ${allowed.map(s => `'${s}'`).join(', ')}.`,
     )
   }
 

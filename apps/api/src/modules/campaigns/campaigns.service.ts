@@ -152,8 +152,9 @@ export class CampaignsService {
     const pending = recipients.filter(r => r.status === CampaignRecipientStatus.pending).length
     const opened = recipients.filter(r => r.opened_at !== null).length
     const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0
+    const failedRate = total > 0 ? Math.round((failed / total) * 100) : 0
 
-    return { ...this.toCamel(campaign), stats: { total, sent, failed, pending, openRate } }
+    return { ...this.toCamel(campaign), stats: { total, sent, failed, pending, openRate, failedRate } }
   }
 
   // ── Update (draft only) ─────────────────────────────────────────────────
@@ -251,7 +252,8 @@ export class CampaignsService {
     const pending = recipients.filter(r => r.status === CampaignRecipientStatus.pending).length
     const opened = recipients.filter(r => r.opened_at !== null).length
     const openRate = sent > 0 ? Math.round((opened / sent) * 100) : 0
+    const failedRate = total > 0 ? Math.round((failed / total) * 100) : 0
 
-    return { total, sent, failed, pending, openRate }
+    return { total, sent, failed, pending, openRate, failedRate }
   }
 }
